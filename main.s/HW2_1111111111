@@ -1,0 +1,45 @@
+	AREA HOMEWORK_2_1,CODE,READONLY
+	ENTRY
+	EXPORT __main
+__main
+
+    LDR R0, =0xF1064822      ; Load first constant
+    LDR R1, =1316180150  	 ; Load student number
+    LDR R2, =0xF0024563      ; Load second constant
+    ADDS R3, R0, R1          ; X = 0xF1064822 + 1316180150
+    ADCS R9,R9,#0
+	ADDS R3, R3, R2          ; X = X + 0xF0024563
+    ADCS R9,R9,#0
+	LDR R4, =0x20000030      ; Memory address for X
+    STR R3, [R4]             ; Store X at 0x20000030
+	ADD R4,#4
+	STR R9,[R4]
+	
+    LDR R0, =0xF1064822      ; Load first constant again
+    LDR R2, =0xFFFFFFFF      ; Load second constant for subtraction
+    SUB R3, R0, R1           ; Y = 0xF1064822 - 1316180150
+    RSB R3, R3, #0           ; Y = Y - 0xFFFFFFFF
+    LDR R4, =0x20000040      ; Memory address for Y
+    STR R3, [R4]             ; Store Y at 0x20000040
+
+    LDR R0, =0xFEA05051      ; Ilk çarpan
+    LDR R1, =1316180150      ; Ikinci çarpan (sabit sayi)
+    UMULL R2, R3, R0, R1     ; R3:R2 = R0 * R1 (64-bit sonuç)
+
+    LDR R4, =0x20000050      ; Bellek adresi
+    STR R2, [R4]             ; Alt 32 bitlik kismi sakla
+    ADD R4, R4, #4           ; Bellek adresini 4 artir
+    STR R3, [R4]             ; Üst 32 bitlik kismi sakla
+
+
+    MOV R0, #0xAA            ; Load 0xAA
+    MOV R1, #0xAB            ; Load 0xAB
+    MOV R2, #0xFF            ; Load 0xFF
+    EOR R1, R1, R2           ; R1 = 0xAB EOR 0xFF
+    AND R3, R0, R1           ; R3 = 0xAA AND R1
+    ORR R3, R3, #0x01        ; A = R3 OR 0x01
+    LDR R4, =0x20000060      ; Memory address for A
+    STR R3, [R4]             ; Store A at 0x20000060
+	
+HERE B HERE		
+	END

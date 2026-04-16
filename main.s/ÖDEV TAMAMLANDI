@@ -1,0 +1,42 @@
+    AREA PROGRAM_AREA, CODE, READONLY
+    ENTRY
+    EXPORT __main
+
+__main
+    ; Compute X = 0xF1064822 + STUDENT_NUMBER + 0xF0024563
+    LDR R0, =0xF1064822
+    LDR R1, =0x12345678   ; Replace with your student number
+    ADD R0, R0, R1
+    LDR R2, =0xF0024563
+    ADD R0, R0, R2
+    LDR R3, =0x20000030
+    STR R0, [R3]
+
+    ; Compute Y = 0xF1064822 - STUDENT_NUMBER - 0xFFFFFFFF
+    LDR R4, =0xF1064822
+    LDR R5, =0x12345678   ; Replace with your student number
+    SUBS R4, R4, R5
+    LDR R6, =0xFFFFFFFF
+    SBC R4, R4, R6
+    LDR R7, =0x20000040
+    STR R4, [R7]
+
+    ; Compute Z = 0xFEA05051 * STUDENT_NUMBER
+    LDR R8, =0xFEA05051
+    LDR R9, =0x12345678   ; Replace with your student number
+    MUL R10, R8, R9
+    LDR R11, =0x20000050
+    STR R10, [R11]
+
+    ; Compute A = [0xAA AND (0xAB EOR 0xFF)] OR 0x01
+    MOV R12, #0xAB
+    EOR R12, R12, #0xFF
+    MOV R0, #0xAA
+    AND R0, R0, R12
+    ORR R0, R0, #0x01
+    LDR R1, =0x20000060
+    STR R0, [R1]
+
+    ; End program
+    MOV R2, #0
+    END

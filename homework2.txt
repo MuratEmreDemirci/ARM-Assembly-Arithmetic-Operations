@@ -1,0 +1,88 @@
+        AREA HOMEWORK2, CODE, READONLY
+        ENTRY
+        EXPORT __main
+
+; =========================================================
+; Student Number
+; =========================================================
+STUDENT_NUM    EQU 1316180150
+
+; Memory Map
+X_ADDR         EQU 0x20000030
+Y_ADDR         EQU 0x20000040
+Z_ADDR         EQU 0x20000050
+A_ADDR         EQU 0x20000060
+
+__main
+
+; =========================================================
+; 🔹 1. X = 0xF1064822 + STUDENT_NUM + 0xF0024563
+; (64-bit safe addition using carry)
+; =========================================================
+
+        LDR R0, =0xF1064822
+        LDR R1, =STUDENT_NUM
+
+        MOV R8, #0              ; High part (carry)
+
+        ADDS R2, R0, R1         ; Low part
+        ADC  R8, R8, #0         ; Carry → high
+
+        LDR R3, =0xF0024563
+        ADDS R2, R2, R3
+        ADC  R8, R8, #0         ; Carry update
+
+        LDR R4, =X_ADDR
+        STR R2, [R4]            ; Low 32-bit
+        ADD R4, R4, #4
+        STR R8, [R4]            ; High 32-bit
+
+; =========================================================
+; 🔹 2. Y = 0xF1064822 - STUDENT_NUM - 0xFFFFFFFF
+; (Borrow-aware subtraction)
+; =========================================================
+
+        LDR R0, =0xF1064822
+        LDR R1, =STUDENT_NUM
+
+        SUBS R5, R0, R1         ; First subtraction
+        LDR R6, =0xFFFFFFFF
+        SBC  R5, R5, R6         ; Borrow handling
+
+        LDR R4, =Y_ADDR
+        STR R5, [R4]
+
+; =========================================================
+; 🔹 3. Z = 0xFEA05051 × STUDENT_NUM
+; (64-bit multiplication using UMULL)
+; =========================================================
+
+        LDR R0, =0xFEA05051
+        LDR R1, =STUDENT_NUM
+
+        UMULL R6, R7, R0, R1    ; R7:R6 = result
+
+        LDR R4, =Z_ADDR
+        STR R6, [R4]            ; Low 32-bit
+        ADD R4, R4, #4
+        STR R7, [R4]            ; High 32-bit
+
+; =========================================================
+; 🔹 4. A = [0xAA AND (0xAB EOR 0xFF)] OR 0x01
+; =========================================================
+
+        MOV R0, #0xAB
+        EOR R0, R0, #0xFF       ; R0 = 0xAB XOR 0xFF
+
+        MOV R1, #0xAA
+        AND R0, R1, R0          ; R0 = AND result
+
+        ORR R0, R0, #0x01       ; Final A
+
+        LDR R4, =A_ADDR
+        STR R0, [R4]
+
+; =========================================================
+
+HERE    B HERE
+        END
